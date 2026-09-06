@@ -151,6 +151,7 @@ svg{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:no
       <button class="card" data-zone="zone2" data-key="三号楼" onclick="routeById('z2-b3')">三号楼</button>
       <button class="card" data-zone="zone2" data-key="一号楼4/5单元" onclick="routeById('z2-b1b')">一号楼4/5单元</button>
       <button class="card" data-zone="zone2" data-key="一号楼1/2/3单元" onclick="routeById('z2-b1a')">一号楼1/2/3单元</button>
+      <button class="card" data-zone="zone2" data-key="一区北门" onclick="routeById('gate1')">一区北门</button>
     </div>
   </div>
   <div id="noResult" class="noResult">没有找到匹配的楼栋或点位</div>
@@ -287,11 +288,18 @@ function routeById(id){
   const d=activeGate==='zone1'?p.d1:p.d2;
   document.getElementById('distance').textContent=d===0?'已在当前位置':d+' m';
 
-  // 指定楼栋的预计步行用时统一缩减 1 分钟，距离数值保持不变。
-  // 一区一号楼、一区二号楼、一区三号楼、二区三号楼
-  const minusOneMinute=['z1-b1','z1-b2','z1-b3','z2-b3'].includes(id);
+  // 预计步行用时：保留此前调整，并按本次要求继续缩减。
+  // 此前已缩减 1 分钟：一区一号楼、一区二号楼、一区三号楼、二区三号楼。
+  // 本次额外再缩减 1 分钟：一区三号楼、二区二号楼1/2/3单元、二区三号楼。
+  const minuteReduction={
+    'z1-b1':1,
+    'z1-b2':1,
+    'z1-b3':2,
+    'z2-b2':1,
+    'z2-b3':2
+  };
   const baseMinutes=Math.max(1,Math.round(d/75));
-  const displayMinutes=d===0?0:Math.max(1,baseMinutes-(minusOneMinute?1:0));
+  const displayMinutes=d===0?0:Math.max(1,baseMinutes-(minuteReduction[id]||0));
   document.getElementById('minutes').textContent=d===0?'0 分钟':'约 '+displayMinutes+' 分钟';
 
   const map=document.getElementById('routeMap');
